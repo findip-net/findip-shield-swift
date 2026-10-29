@@ -132,6 +132,12 @@ actions are retried once when the network fails.
 iOS 15, tvOS 15, visionOS 1, macOS 12. Swift 5.9 or later; clean in Swift 6
 language mode.
 
+## Demo app
+
+[`Examples/ShieldDemo`](Examples/ShieldDemo) is a SwiftUI login screen with a
+small Node backend that verifies the session: the whole flow from `track` to
+the backend's decision, in one runnable project.
+
 ## License
 
 MIT. Report vulnerabilities privately: [SECURITY.md](SECURITY.md).
