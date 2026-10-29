@@ -1,0 +1,26 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v5
+      - name: Toolchain
+        run: swift --version && xcodebuild -version
+      - name: Tests (Swift Testing, shared fixtures)
+        run: swift test
+      - name: Swift 6 language mode
+        run: swift build -Xswiftc -swift-version -Xswiftc 6
+      - name: Build for iOS devices
+        run: xcodebuild build -scheme FindIPShield -destination 'generic/platform=iOS' -quiet
+      - name: Build for the iOS Simulator
+        run: xcodebuild build -scheme FindIPShield -destination 'generic/platform=iOS Simulator' -quiet

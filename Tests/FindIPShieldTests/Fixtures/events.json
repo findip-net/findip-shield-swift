@@ -1,0 +1,14 @@
+{
+  "about": "Event names a caller passes to track() and the name the SDK must send: trimmed, lower-cased, runs of whitespace become one underscore, and anything outside the Shield list becomes custom.",
+  "cases": [
+    { "input": "login_attempt", "expected": "login_attempt" },
+    { "input": "  Signup Attempt ", "expected": "signup_attempt" },
+    { "input": "LOGIN_FAILED", "expected": "login_failed" },
+    { "input": "checkout_started", "expected": "checkout_started" },
+    { "input": "payment_attempt", "expected": "payment_attempt" },
+    { "input": "password_reset_attempt", "expected": "password_reset_attempt" },
+    { "input": "promo_redeemed", "expected": "custom" },
+    { "input": "screen_view", "expected": "custom" },
+    { "input": "", "expected": "custom" }
+  ]
+}

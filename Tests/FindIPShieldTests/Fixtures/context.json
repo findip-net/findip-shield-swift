@@ -1,0 +1,109 @@
+{
+  "about": "The custom object passed to track() or identify() and what may leave the device: at most 20 keys, key names up to 64 characters, values that are booleans, numbers or strings of 1 to 256 characters after trimming. Keys that look sensitive (password, card, cvv, ssn, secret, ...) and values that look like an email, a phone number or a card number are dropped.",
+  "cases": [
+    {
+      "name": "plain facts pass",
+      "input": {
+        "method": "password",
+        "seats": 3,
+        "trial": true
+      },
+      "expected": {
+        "method": "password",
+        "seats": 3,
+        "trial": true
+      }
+    },
+    {
+      "name": "sensitive key names are dropped whatever the value",
+      "input": {
+        "password": "x",
+        "card_last4": "1234",
+        "api_secret": "y",
+        "plan_tier": "pro"
+      },
+      "expected": {
+        "plan_tier": "pro"
+      }
+    },
+    {
+      "name": "values that look like an email, a phone or a card number are dropped",
+      "input": {
+        "contact": "jane@example.com",
+        "mobile": "+44 20 7946 0958",
+        "ref": "4111 1111 1111 1111",
+        "source": "ads"
+      },
+      "expected": {
+        "source": "ads"
+      }
+    },
+    {
+      "name": "empty and over-long strings and other types are dropped",
+      "input": {
+        "empty": "   ",
+        "long": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "nested": {
+          "a": 1
+        },
+        "list": [
+          1,
+          2
+        ],
+        "ok": " kept "
+      },
+      "expected": {
+        "ok": "kept"
+      }
+    },
+    {
+      "name": "only the first 20 keys are kept",
+      "input": {
+        "k00": 0,
+        "k01": 1,
+        "k02": 2,
+        "k03": 3,
+        "k04": 4,
+        "k05": 5,
+        "k06": 6,
+        "k07": 7,
+        "k08": 8,
+        "k09": 9,
+        "k10": 10,
+        "k11": 11,
+        "k12": 12,
+        "k13": 13,
+        "k14": 14,
+        "k15": 15,
+        "k16": 16,
+        "k17": 17,
+        "k18": 18,
+        "k19": 19,
+        "k20": 20,
+        "k21": 21
+      },
+      "expected": {
+        "k00": 0,
+        "k01": 1,
+        "k02": 2,
+        "k03": 3,
+        "k04": 4,
+        "k05": 5,
+        "k06": 6,
+        "k07": 7,
+        "k08": 8,
+        "k09": 9,
+        "k10": 10,
+        "k11": 11,
+        "k12": 12,
+        "k13": 13,
+        "k14": 14,
+        "k15": 15,
+        "k16": 16,
+        "k17": 17,
+        "k18": 18,
+        "k19": 19
+      }
+    }
+  ]
+}

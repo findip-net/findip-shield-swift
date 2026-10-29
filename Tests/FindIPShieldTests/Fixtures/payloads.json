@@ -1,0 +1,499 @@
+{
+  "about": "Requests sent to POST /v1/shield/track for an app site registering the apps below, and what ingest must answer and store. No Origin header is sent. Cases with sdk_builds: true are exactly what a native SDK must build from the same inputs (event.timestamp aside); the others are ingest-only checks of things an SDK must never send. `browser` is the exact stored browser_json; `browser_absent` lists keys that must not be stored.",
+  "site_apps": [
+    {
+      "platform": "ios",
+      "bundleId": "com.example.app"
+    },
+    {
+      "platform": "android",
+      "bundleId": "com.example.app.android"
+    }
+  ],
+  "cases": [
+    {
+      "name": "iOS login: device block stored under the browser key names, synthesised user agent, app recognition",
+      "request": {
+        "site_key": "pub_fixture00000000",
+        "sdk": {
+          "name": "findip-shield-ios",
+          "version": "1.0.0",
+          "integration": "ios"
+        },
+        "app": {
+          "bundle_id": "com.example.app",
+          "version": "4.2.1",
+          "build": "1021"
+        },
+        "event": {
+          "name": "login_attempt",
+          "source": "manual"
+        },
+        "page": {
+          "path": "/screen/login"
+        },
+        "session": {
+          "session_id": "sess_AbCdEfGhIjKlMnOpQrStUv",
+          "visitor_id": "vis_AbCdEfGhIjKlMnOpQrStUv",
+          "storage": "app",
+          "visitor_storage": "app"
+        },
+        "device": {
+          "platform": "ios",
+          "os_version": "18.1",
+          "model_family": "iPhone",
+          "locale": "en-GB",
+          "timezone": "Europe/London",
+          "screen": {
+            "width": 393,
+            "height": 852,
+            "scale": 3
+          },
+          "signals": {
+            "emulator": false,
+            "rooted": null,
+            "debugger": false
+          }
+        },
+        "customer_context": {
+          "email_hash": "86e0b9e56c17cc4d12387e1949b85053fbe73bc3ce5a1188713a9d300cc6133d",
+          "email_domain": "example.com",
+          "custom": {
+            "method": "password"
+          }
+        },
+        "privacy": {
+          "mode": "balanced",
+          "consent": {
+            "granted": true,
+            "source": "app"
+          }
+        }
+      },
+      "expected": {
+        "status": 200,
+        "integration": "ios",
+        "event_name": "login_attempt",
+        "page_path": "/screen/login",
+        "browser": {
+          "platform": "ios",
+          "os_version": "18.1",
+          "model_family": "iPhone",
+          "language": "en-GB",
+          "timezone": "Europe/London",
+          "screen": {
+            "width": 393,
+            "height": 852,
+            "scale": 3
+          },
+          "signals": {
+            "emulator": false,
+            "rooted": null,
+            "debugger": false
+          },
+          "app_id": "com.example.app",
+          "app_version": "4.2.1",
+          "app_build": "1021",
+          "user_agent": "findip-shield-ios/1.0.0 (iOS 18.1; iPhone) com.example.app/4.2.1",
+          "recognition": {
+            "session": "app",
+            "visitor": "app"
+          }
+        }
+      },
+      "sdk_builds": true
+    },
+    {
+      "name": "Android signup in strict mode: what a strict SDK sends, stored as is",
+      "request": {
+        "site_key": "pub_fixture00000000",
+        "sdk": {
+          "name": "findip-shield-android",
+          "version": "1.0.0",
+          "integration": "android"
+        },
+        "app": {
+          "bundle_id": "com.example.app.android",
+          "version": "3.0.0"
+        },
+        "event": {
+          "name": "signup_attempt",
+          "source": "manual"
+        },
+        "page": {
+          "path": "/screen/signup"
+        },
+        "session": {
+          "session_id": "sess_AbCdEfGhIjKlMnOpQrStUv",
+          "storage": "app"
+        },
+        "device": {
+          "platform": "android",
+          "os_version": "14",
+          "locale": "en-US",
+          "timezone": "America/New_York"
+        },
+        "customer_context": {
+          "email_hash": "86e0b9e56c17cc4d12387e1949b85053fbe73bc3ce5a1188713a9d300cc6133d",
+          "email_domain": "example.com",
+          "custom": {
+            "method": "password"
+          }
+        },
+        "privacy": {
+          "mode": "strict"
+        }
+      },
+      "expected": {
+        "status": 200,
+        "integration": "android",
+        "event_name": "signup_attempt",
+        "page_path": "/screen/signup",
+        "browser": {
+          "platform": "android",
+          "os_version": "14",
+          "language": "en-US",
+          "timezone": "America/New_York",
+          "app_id": "com.example.app.android",
+          "app_version": "3.0.0",
+          "user_agent": "findip-shield-android/1.0.0 (Android 14) com.example.app.android/3.0.0",
+          "recognition": {
+            "session": "app"
+          }
+        }
+      },
+      "sdk_builds": true
+    },
+    {
+      "name": "strict mode at ingest: screen, signals and device family are dropped even when sent",
+      "request": {
+        "site_key": "pub_fixture00000000",
+        "sdk": {
+          "name": "findip-shield-android",
+          "version": "1.0.0",
+          "integration": "android"
+        },
+        "app": {
+          "bundle_id": "com.example.app.android",
+          "version": "3.0.0"
+        },
+        "event": {
+          "name": "signup_attempt",
+          "source": "manual"
+        },
+        "page": {
+          "path": "/screen/signup"
+        },
+        "session": {
+          "session_id": "sess_AbCdEfGhIjKlMnOpQrStUv",
+          "visitor_id": "vis_AbCdEfGhIjKlMnOpQrStUv",
+          "storage": "app",
+          "visitor_storage": "app"
+        },
+        "device": {
+          "platform": "android",
+          "os_version": "14",
+          "model_family": "Pixel",
+          "locale": "en-US",
+          "timezone": "America/New_York",
+          "screen": {
+            "width": 412,
+            "height": 915,
+            "scale": 2.625
+          },
+          "signals": {
+            "emulator": true,
+            "rooted": false,
+            "debugger": false
+          }
+        },
+        "customer_context": {
+          "email_hash": "86e0b9e56c17cc4d12387e1949b85053fbe73bc3ce5a1188713a9d300cc6133d",
+          "email_domain": "example.com",
+          "custom": {
+            "method": "password"
+          }
+        },
+        "privacy": {
+          "mode": "strict"
+        }
+      },
+      "expected": {
+        "status": 200,
+        "integration": "android",
+        "event_name": "signup_attempt",
+        "page_path": "/screen/signup",
+        "browser": {
+          "platform": "android",
+          "os_version": "14",
+          "language": "en-US",
+          "timezone": "America/New_York",
+          "app_id": "com.example.app.android",
+          "app_version": "3.0.0",
+          "user_agent": "findip-shield-android/1.0.0 (Android 14) com.example.app.android/3.0.0",
+          "recognition": {
+            "session": "app",
+            "visitor": "app"
+          }
+        }
+      }
+    },
+    {
+      "name": "an exact model identifier and unknown device fields never get stored",
+      "request": {
+        "site_key": "pub_fixture00000000",
+        "sdk": {
+          "name": "findip-shield-ios",
+          "version": "1.0.0",
+          "integration": "ios"
+        },
+        "app": {
+          "bundle_id": "com.example.app",
+          "version": "4.2.1",
+          "build": "1021"
+        },
+        "event": {
+          "name": "login_attempt",
+          "source": "manual"
+        },
+        "page": {
+          "path": "/screen/login"
+        },
+        "session": {
+          "session_id": "sess_AbCdEfGhIjKlMnOpQrStUv",
+          "visitor_id": "vis_AbCdEfGhIjKlMnOpQrStUv",
+          "storage": "app",
+          "visitor_storage": "app"
+        },
+        "device": {
+          "platform": "ios",
+          "os_version": "18.1",
+          "model_family": "iPhone15,2",
+          "locale": "en-GB",
+          "timezone": "UTC",
+          "idfa": "6D92078A-8246-4BA4-AE5B-76104861E7DC",
+          "carrier": "Vodafone"
+        },
+        "customer_context": {
+          "email_hash": "86e0b9e56c17cc4d12387e1949b85053fbe73bc3ce5a1188713a9d300cc6133d",
+          "email_domain": "example.com",
+          "custom": {
+            "method": "password"
+          }
+        },
+        "privacy": {
+          "mode": "balanced",
+          "consent": {
+            "granted": true,
+            "source": "app"
+          }
+        }
+      },
+      "expected": {
+        "status": 200,
+        "integration": "ios",
+        "browser_absent": [
+          "model_family",
+          "idfa",
+          "carrier"
+        ]
+      }
+    },
+    {
+      "name": "an app id the site has not registered is refused and named",
+      "request": {
+        "site_key": "pub_fixture00000000",
+        "sdk": {
+          "name": "findip-shield-ios",
+          "version": "1.0.0",
+          "integration": "ios"
+        },
+        "app": {
+          "bundle_id": "com.other.app"
+        },
+        "event": {
+          "name": "login_attempt",
+          "source": "manual"
+        },
+        "page": {
+          "path": "/screen/login"
+        },
+        "session": {
+          "session_id": "sess_AbCdEfGhIjKlMnOpQrStUv",
+          "visitor_id": "vis_AbCdEfGhIjKlMnOpQrStUv",
+          "storage": "app",
+          "visitor_storage": "app"
+        },
+        "device": {
+          "platform": "ios",
+          "os_version": "18.1",
+          "model_family": "iPhone",
+          "locale": "en_GB",
+          "timezone": "Europe/London",
+          "screen": {
+            "width": 393,
+            "height": 852,
+            "scale": 3
+          },
+          "signals": {
+            "emulator": false,
+            "rooted": null,
+            "debugger": false
+          }
+        },
+        "customer_context": {
+          "email_hash": "86e0b9e56c17cc4d12387e1949b85053fbe73bc3ce5a1188713a9d300cc6133d",
+          "email_domain": "example.com",
+          "custom": {
+            "method": "password"
+          }
+        },
+        "privacy": {
+          "mode": "balanced",
+          "consent": {
+            "granted": true,
+            "source": "app"
+          }
+        }
+      },
+      "expected": {
+        "status": 403,
+        "body": {
+          "error": "app_mismatch",
+          "detected_app": "com.other.app"
+        }
+      }
+    },
+    {
+      "name": "an iOS event with the Android app id is refused",
+      "request": {
+        "site_key": "pub_fixture00000000",
+        "sdk": {
+          "name": "findip-shield-ios",
+          "version": "1.0.0",
+          "integration": "ios"
+        },
+        "app": {
+          "bundle_id": "com.example.app.android"
+        },
+        "event": {
+          "name": "login_attempt",
+          "source": "manual"
+        },
+        "page": {
+          "path": "/screen/login"
+        },
+        "session": {
+          "session_id": "sess_AbCdEfGhIjKlMnOpQrStUv",
+          "visitor_id": "vis_AbCdEfGhIjKlMnOpQrStUv",
+          "storage": "app",
+          "visitor_storage": "app"
+        },
+        "device": {
+          "platform": "ios",
+          "os_version": "18.1",
+          "model_family": "iPhone",
+          "locale": "en_GB",
+          "timezone": "Europe/London",
+          "screen": {
+            "width": 393,
+            "height": 852,
+            "scale": 3
+          },
+          "signals": {
+            "emulator": false,
+            "rooted": null,
+            "debugger": false
+          }
+        },
+        "customer_context": {
+          "email_hash": "86e0b9e56c17cc4d12387e1949b85053fbe73bc3ce5a1188713a9d300cc6133d",
+          "email_domain": "example.com",
+          "custom": {
+            "method": "password"
+          }
+        },
+        "privacy": {
+          "mode": "balanced",
+          "consent": {
+            "granted": true,
+            "source": "app"
+          }
+        }
+      },
+      "expected": {
+        "status": 403,
+        "body": {
+          "error": "app_mismatch",
+          "detected_app": "com.example.app.android"
+        }
+      }
+    },
+    {
+      "name": "a website integration on an app key is refused",
+      "request": {
+        "site_key": "pub_fixture00000000",
+        "sdk": {
+          "name": "findip-shield-js",
+          "version": "1.13.0",
+          "integration": "javascript"
+        },
+        "app": {
+          "bundle_id": "com.example.app",
+          "version": "4.2.1",
+          "build": "1021"
+        },
+        "event": {
+          "name": "login_attempt",
+          "source": "manual"
+        },
+        "page": {
+          "path": "/screen/login"
+        },
+        "session": {
+          "session_id": "sess_AbCdEfGhIjKlMnOpQrStUv",
+          "visitor_id": "vis_AbCdEfGhIjKlMnOpQrStUv",
+          "storage": "app",
+          "visitor_storage": "app"
+        },
+        "device": {
+          "platform": "ios",
+          "os_version": "18.1",
+          "model_family": "iPhone",
+          "locale": "en_GB",
+          "timezone": "Europe/London",
+          "screen": {
+            "width": 393,
+            "height": 852,
+            "scale": 3
+          },
+          "signals": {
+            "emulator": false,
+            "rooted": null,
+            "debugger": false
+          }
+        },
+        "customer_context": {
+          "email_hash": "86e0b9e56c17cc4d12387e1949b85053fbe73bc3ce5a1188713a9d300cc6133d",
+          "email_domain": "example.com",
+          "custom": {
+            "method": "password"
+          }
+        },
+        "privacy": {
+          "mode": "balanced",
+          "consent": {
+            "granted": true,
+            "source": "app"
+          }
+        }
+      },
+      "expected": {
+        "status": 403,
+        "body": {
+          "error": "integration_not_allowed"
+        }
+      }
+    }
+  ]
+}
