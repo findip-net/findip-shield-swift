@@ -5,7 +5,7 @@ import Testing
 
 /// Answers requests from a closure and records them.
 final class StubTransport: HTTPTransport, @unchecked Sendable {
-    typealias Handler = @Sendable (URLRequest) throws -> (Int, [String: Any])
+    typealias Handler = @Sendable (URLRequest) async throws -> (Int, [String: Any])
     private let lock = NSLock()
     private var handler: Handler
     private(set) var requests: [URLRequest] = []
@@ -22,13 +22,25 @@ final class StubTransport: HTTPTransport, @unchecked Sendable {
 
     var trackedNames: [String] { tracked.compactMap { ($0["event"] as? [String: Any])?["name"] as? String } }
 
+    /// The tracked bodies other than `session_start`, which is sent alongside, in either order.
+    var events: [[String: Any]] { tracked.filter { ($0["event"] as? [String: Any])?["name"] as? String != "session_start" } }
+
     func send(_ request: URLRequest) async throws -> (status: Int, body: Data) {
         let handler = lock.sync { () -> Handler in
             requests.append(request)
             return self.handler
         }
-        let (status, object) = try handler(request)
+        let (status, object) = try await handler(request)
         return (status, try JSONSerialization.data(withJSONObject: object))
+    }
+}
+
+extension ShieldClient {
+    /// `track`, then waits for the `session_start` sent alongside it.
+    func trackSettled(_ name: String, context: [String: ContextValue]?, screen: String?) async throws -> Verdict {
+        let verdict = try await track(name, context: context, screen: screen)
+        await settle()
+        return verdict
     }
 }
 
@@ -70,17 +82,17 @@ final class TestClock: @unchecked Sendable {
         let clock = TestClock()
         let client = makeClient(transport, clock: clock)
 
-        let verdict = try await client.track("login_attempt", context: nil, screen: "login")
+        let verdict = try await client.trackSettled("login_attempt", context: nil, screen: "login")
         #expect(verdict.transport == .delivered)
         #expect(verdict.risk.recommendation == .allow)
         #expect(verdict.risk.score == 12)
         #expect(verdict.network?.country == "GB")
-        _ = try await client.track("login_failed", context: nil, screen: nil)
-        #expect(transport.trackedNames == ["session_start", "login_attempt", "login_failed"])
+        _ = try await client.trackSettled("login_failed", context: nil, screen: nil)
+        #expect(transport.trackedNames.sorted() == ["login_attempt", "login_failed", "session_start"])
 
         clock.advance(31 * 60)
-        _ = try await client.track("login_attempt", context: nil, screen: nil)
-        #expect(transport.trackedNames.suffix(2) == ["session_start", "login_attempt"])
+        _ = try await client.trackSettled("login_attempt", context: nil, screen: nil)
+        #expect(Set(transport.trackedNames.suffix(2)) == ["session_start", "login_attempt"])
         let sessions = Set(transport.tracked.compactMap { ($0["session"] as? [String: Any])?["session_id"] as? String })
         #expect(sessions.count == 2, Comment(rawValue: "a new session after the timeout"))
     }
@@ -88,8 +100,8 @@ final class TestClock: @unchecked Sendable {
     @Test func testIdsHaveTheSpecFormatAndTheVisitorPersists() async throws {
         let store = MemoryStore()
         let transport = StubTransport { _ in (200, Self.allow) }
-        _ = try await makeClient(transport, store: store).track("login_attempt", context: nil, screen: nil)
-        _ = try await makeClient(transport, store: store).track("login_attempt", context: nil, screen: nil)
+        _ = try await makeClient(transport, store: store).trackSettled("login_attempt", context: nil, screen: nil)
+        _ = try await makeClient(transport, store: store).trackSettled("login_attempt", context: nil, screen: nil)
         let sessions = transport.tracked.compactMap { $0["session"] as? [String: Any] }
         let pattern = try NSRegularExpression(pattern: "^(sess|vis)_[A-Za-z0-9_-]{22}$")
         for s in sessions {
@@ -102,8 +114,8 @@ final class TestClock: @unchecked Sendable {
 
     @Test func testStrictModeSendsNoVisitorScreenSignalsOrFamily() async throws {
         let transport = StubTransport { _ in (200, Self.allow) }
-        _ = try await makeClient(transport, options: ShieldOptions(privacyMode: .strict)).track("signup_attempt", context: nil, screen: nil)
-        let body = try #require(transport.tracked.last)
+        _ = try await makeClient(transport, options: ShieldOptions(privacyMode: .strict)).trackSettled("signup_attempt", context: nil, screen: nil)
+        let body = try #require(transport.events.last)
         let session = try #require(body["session"] as? [String: Any])
         let device = try #require(body["device"] as? [String: Any])
         #expect(session["visitor_id"] == nil)
@@ -116,18 +128,18 @@ final class TestClock: @unchecked Sendable {
     @Test func testConsentRequiredSendsNothingUntilGranted() async throws {
         let transport = StubTransport { _ in (200, Self.allow) }
         let client = makeClient(transport, options: ShieldOptions(consentRequired: true))
-        let refused = try await client.track("login_attempt", context: nil, screen: nil)
+        let refused = try await client.trackSettled("login_attempt", context: nil, screen: nil)
         #expect(refused.transport == .dropped(.consent))
         #expect(refused.risk.recommendation == .monitor)
         #expect(transport.requests.isEmpty)
         client.setConsent(true)
-        let sent = try await client.track("login_attempt", context: nil, screen: nil)
+        let sent = try await client.trackSettled("login_attempt", context: nil, screen: nil)
         #expect(sent.transport == .delivered)
     }
 
     @Test func testRefusalsNeverReadAsAllow() async throws {
         let transport = StubTransport { _ in (403, ["error": "app_mismatch", "detected_app": "com.example.app"]) }
-        let verdict = try await makeClient(transport).track("login_attempt", context: nil, screen: nil)
+        let verdict = try await makeClient(transport).trackSettled("login_attempt", context: nil, screen: nil)
         #expect(verdict.transport == .dropped(.configuration))
         #expect(verdict.risk.status == .unknown)
         #expect(verdict.risk.recommendation == .monitor)
@@ -145,14 +157,14 @@ final class TestClock: @unchecked Sendable {
         let transport = StubTransport { _ in (429, ["error": "daily_quota_exceeded"]) }
         let clock = TestClock()
         let client = makeClient(transport, clock: clock)
-        let first = try await client.track("login_attempt", context: nil, screen: nil)
+        let first = try await client.trackSettled("login_attempt", context: nil, screen: nil)
         #expect(first.transport == .dropped(.limited))
         let sentBefore = transport.requests.count
-        _ = try await client.track("login_attempt", context: nil, screen: nil)
+        _ = try await client.trackSettled("login_attempt", context: nil, screen: nil)
         #expect(transport.requests.count == sentBefore, Comment(rawValue: "nothing is sent during the cooldown"))
         clock.advance(61)
         transport.setHandler { _ in (200, Self.allow) }
-        let later = try await client.track("login_attempt", context: nil, screen: nil)
+        let later = try await client.trackSettled("login_attempt", context: nil, screen: nil)
         #expect(later.transport == .delivered)
     }
 
@@ -160,12 +172,12 @@ final class TestClock: @unchecked Sendable {
         struct Offline: Error {}
         let transport = StubTransport { _ in throw Offline() }
         let client = makeClient(transport)
-        let sensitive = try await client.track("login_attempt", context: nil, screen: nil)
+        let sensitive = try await client.trackSettled("login_attempt", context: nil, screen: nil)
         #expect(sensitive.transport == .dropped(.unreachable))
         #expect(sensitive.risk.reasons == ["shield_unreachable"])
         // session_start once (not sensitive), login_attempt twice.
-        #expect(transport.trackedNames == ["session_start", "login_attempt", "login_attempt"])
-        _ = try await client.track("page_view", context: nil, screen: nil)
+        #expect(transport.trackedNames.sorted() == ["login_attempt", "login_attempt", "session_start"])
+        _ = try await client.trackSettled("page_view", context: nil, screen: nil)
         #expect(transport.trackedNames.filter { $0 == "page_view" }.count == 1, Comment(rawValue: "not retried"))
     }
 
@@ -176,15 +188,15 @@ final class TestClock: @unchecked Sendable {
             return hasCustom ? (413, ["error": "payload_too_large"]) : (200, Self.allow)
         }
         let client = makeClient(transport)
-        let verdict = try await client.track("login_attempt", context: ["method": "password"], screen: nil)
+        let verdict = try await client.trackSettled("login_attempt", context: ["method": "password"], screen: nil)
         #expect(verdict.transport == .delivered)
-        #expect((transport.tracked.last?["customer_context"] as? [String: Any])?["custom"] == nil)
+        #expect((transport.events.last?["customer_context"] as? [String: Any])?["custom"] == nil)
     }
 
     @Test func testContextIsFilteredOnDevice() async throws {
         let transport = StubTransport { _ in (200, Self.allow) }
-        _ = try await makeClient(transport).track("login_attempt", context: ["method": "password", "password": "x", "contact": "jane@example.com"], screen: nil)
-        let custom = (transport.tracked.last?["customer_context"] as? [String: Any])?["custom"] as? [String: Any]
+        _ = try await makeClient(transport).trackSettled("login_attempt", context: ["method": "password", "password": "x", "contact": "jane@example.com"], screen: nil)
+        let custom = (transport.events.last?["customer_context"] as? [String: Any])?["custom"] as? [String: Any]
         #expect(custom as NSDictionary? == ["method": "password"] as NSDictionary)
     }
 
@@ -192,7 +204,7 @@ final class TestClock: @unchecked Sendable {
         #expect(throws: ShieldError.invalidSiteKey) { try FindIPShield.configure(siteKey: "sec_nope") }
         let client = makeClient(StubTransport { _ in (200, Self.allow) })
         do {
-            _ = try await client.track("   ", context: nil, screen: nil)
+            _ = try await client.trackSettled("   ", context: nil, screen: nil)
             Issue.record("an empty name throws")
         } catch {
             #expect(error as? ShieldError == .emptyEventName)
@@ -218,13 +230,13 @@ final class TestClock: @unchecked Sendable {
         }
         let client = makeClient(transport)
         client.identify(IdentityInput(userId: "42", email: " Jane@Example.com ", plan: "free"))
-        _ = try await client.track("login_attempt", context: nil, screen: nil)
+        _ = try await client.trackSettled("login_attempt", context: nil, screen: nil)
 
-        let context = try #require(transport.tracked.last?["customer_context"] as? [String: Any])
+        let context = try #require(transport.events.last?["customer_context"] as? [String: Any])
         #expect(context["email_domain"] as? String == "example.com")
         #expect(context["plan"] as? String == "free")
         #expect(context["email_hash"] as? String == Identity.sha256Hex("jane@example.com"))
-        let body = try #require(transport.requests.last?.httpBody.flatMap { String(data: $0, encoding: .utf8) })
+        let body = try #require(transport.events.last.flatMap { try? JSONSerialization.data(withJSONObject: $0) }.flatMap { String(data: $0, encoding: .utf8) })
         #expect(!(body.contains("Jane@Example.com") || body.contains("jane@example.com")), Comment(rawValue: "no raw email leaves the device"))
 
         for (field, plain) in [("email_enc", "jane@example.com"), ("user_id_enc", "42")] {
@@ -241,8 +253,8 @@ final class TestClock: @unchecked Sendable {
         let transport = StubTransport { request in request.httpMethod == "GET" ? (404, ["error": "no_identity_key"]) : (200, Self.allow) }
         let client = makeClient(transport)
         client.identify(IdentityInput(userId: "42"))
-        _ = try await client.track("login_attempt", context: nil, screen: nil)
-        let context = try #require(transport.tracked.last?["customer_context"] as? [String: Any])
+        _ = try await client.trackSettled("login_attempt", context: nil, screen: nil)
+        let context = try #require(transport.events.last?["customer_context"] as? [String: Any])
         #expect(context["user_id_hash"] != nil)
         #expect(context["user_id_enc"] == nil)
     }
@@ -250,6 +262,54 @@ final class TestClock: @unchecked Sendable {
     @Test func testIdentityKeyURLSitsNextToTheTrackEndpoint() {
         let client = makeClient(StubTransport { _ in (200, Self.allow) })
         #expect(client.identityKeyURL?.absoluteString == "https://shield.findip.net/v1/shield/identity-key?site_key=pub_test0000000000")
+    }
+
+    @Test func testASilentShieldAnswersUnknownAtTheDeadline() async throws {
+        let transport = StubTransport { _ in
+            try await Task.sleep(nanoseconds: 30_000_000_000)
+            return (200, Self.allow)
+        }
+        let client = makeClient(transport, options: ShieldOptions(timeout: 0.3))
+        let started = Date()
+        let verdict = try await client.track("login_attempt", context: nil, screen: nil)
+        #expect(Date().timeIntervalSince(started) < 5, Comment(rawValue: "answered at the deadline, not after the network"))
+        #expect(verdict.transport == .dropped(.unreachable))
+        #expect(verdict.risk.status == .unknown)
+        #expect(verdict.risk.recommendation == .monitor)
+        #expect(verdict.sessionId.hasPrefix("sess_"))
+    }
+
+    @Test func testTheFirstEventDoesNotWaitForSessionStart() async throws {
+        let transport = StubTransport { request in
+            let body = request.httpBody.flatMap { try? JSONSerialization.jsonObject(with: $0) as? [String: Any] }
+            if (body?["event"] as? [String: Any])?["name"] as? String == "session_start" {
+                try await Task.sleep(nanoseconds: 3_000_000_000)
+            }
+            return (200, Self.allow)
+        }
+        let client = makeClient(transport)
+        let started = Date()
+        let verdict = try await client.track("login_attempt", context: nil, screen: nil)
+        #expect(verdict.transport == .delivered)
+        #expect(Date().timeIntervalSince(started) < 2, Comment(rawValue: "answered without waiting for session_start"))
+        await client.settle()
+        #expect(transport.trackedNames.sorted() == ["login_attempt", "session_start"])
+    }
+
+    @Test func testASessionsFirstEventsShareOneIdentityKeyFetch() async throws {
+        let (formatted, _) = try Self.makeIdentityKey()
+        let transport = StubTransport { request in
+            if request.httpMethod == "GET" {
+                try await Task.sleep(nanoseconds: 100_000_000)
+                return (200, ["key": formatted])
+            }
+            return (200, Self.allow)
+        }
+        let client = makeClient(transport)
+        client.identify(IdentityInput(userId: "42", email: "jane@example.com", plan: nil))
+        _ = try await client.trackSettled("login_attempt", context: nil, screen: nil)
+        #expect(transport.requests.filter { $0.httpMethod == "GET" }.count == 1)
+        #expect(transport.tracked.allSatisfy { ($0["customer_context"] as? [String: Any])?["email_enc"] != nil })
     }
 
     /// A fresh RSA-2048 key, its public half as "fk1.<id>.<base64 SPKI>" like the dashboard publishes it.

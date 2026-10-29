@@ -12,7 +12,7 @@ import Foundation
 /// `POST https://shield.findip.net/v1/shield/sessions/verify` and the site's
 /// secret key before it allows, challenges or blocks.
 public enum FindIPShield {
-    public static let version = "1.0.0"
+    public static let version = "1.0.1"
     static let sdkName = "findip-shield-ios"
 
     private static let lock = NSLock()
