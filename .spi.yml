@@ -1,0 +1,6 @@
+# Swift Package Index: build and host the DocC reference for the library.
+version: 1
+builder:
+  configs:
+    - documentation_targets: [FindIPShield]
+      platform: ios
