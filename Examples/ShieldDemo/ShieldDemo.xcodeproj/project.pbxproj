@@ -1,0 +1,346 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		138C884BD11396C1EF0BF590 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE235AF0E4BEBB326C98B46B /* LoginView.swift */; };
+		19F99D4F487A05AE7DEAFA10 /* ShieldDemoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C8C2F27F995C9AD4DD4BB18 /* ShieldDemoApp.swift */; };
+		641414A839DD8CC1355A3A2A /* DemoBackend.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5D473FB0AAC686C82513945 /* DemoBackend.swift */; };
+		81A6F72768719BAB13D61F83 /* DemoConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBC83CC09492612FD44EAAA8 /* DemoConfig.swift */; };
+		B5B42121EFE5CEB7C4EEF20B /* FindIPShield in Frameworks */ = {isa = PBXBuildFile; productRef = B8FC5ABF5AE3EC9B0B1E4879 /* FindIPShield */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		7C8C2F27F995C9AD4DD4BB18 /* ShieldDemoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShieldDemoApp.swift; sourceTree = "<group>"; };
+		9BA980C1B176C1FED649AA65 /* findip-shield-swift */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "findip-shield-swift"; path = ../..; sourceTree = SOURCE_ROOT; };
+		CBC83CC09492612FD44EAAA8 /* DemoConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoConfig.swift; sourceTree = "<group>"; };
+		D5D473FB0AAC686C82513945 /* DemoBackend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoBackend.swift; sourceTree = "<group>"; };
+		E2D6EFB7C15F2EB651524D0D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		E49AACF03652CAD6579FAB51 /* ShieldDemo.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = ShieldDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		FE235AF0E4BEBB326C98B46B /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		46DA569DD6C9569801BC5E1D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B5B42121EFE5CEB7C4EEF20B /* FindIPShield in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		12CD9779DABB88DAC05140D3 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				E49AACF03652CAD6579FAB51 /* ShieldDemo.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		36C55C2D3F902635C87E4074 = {
+			isa = PBXGroup;
+			children = (
+				4622B13DF5B12F7DE00AD9B2 /* Packages */,
+				B4186F442C19231C101AF279 /* ShieldDemo */,
+				12CD9779DABB88DAC05140D3 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		4622B13DF5B12F7DE00AD9B2 /* Packages */ = {
+			isa = PBXGroup;
+			children = (
+				9BA980C1B176C1FED649AA65 /* findip-shield-swift */,
+			);
+			name = Packages;
+			sourceTree = "<group>";
+		};
+		B4186F442C19231C101AF279 /* ShieldDemo */ = {
+			isa = PBXGroup;
+			children = (
+				D5D473FB0AAC686C82513945 /* DemoBackend.swift */,
+				CBC83CC09492612FD44EAAA8 /* DemoConfig.swift */,
+				E2D6EFB7C15F2EB651524D0D /* Info.plist */,
+				FE235AF0E4BEBB326C98B46B /* LoginView.swift */,
+				7C8C2F27F995C9AD4DD4BB18 /* ShieldDemoApp.swift */,
+			);
+			path = ShieldDemo;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		228B73E657427E2304A32C28 /* ShieldDemo */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3143F90041616D21616E18EE /* Build configuration list for PBXNativeTarget "ShieldDemo" */;
+			buildPhases = (
+				08A505D5F2C088D02A0687C0 /* Sources */,
+				46DA569DD6C9569801BC5E1D /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ShieldDemo;
+			packageProductDependencies = (
+				B8FC5ABF5AE3EC9B0B1E4879 /* FindIPShield */,
+			);
+			productName = ShieldDemo;
+			productReference = E49AACF03652CAD6579FAB51 /* ShieldDemo.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		C1F87D00F7BD0AF1952BA0F1 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					228B73E657427E2304A32C28 = {
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 4792687D42A1498CDFC292EB /* Build configuration list for PBXProject "ShieldDemo" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 36C55C2D3F902635C87E4074;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				924C11BB69C0049B8C87E8BB /* XCLocalSwiftPackageReference "../.." */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 12CD9779DABB88DAC05140D3 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				228B73E657427E2304A32C28 /* ShieldDemo */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		08A505D5F2C088D02A0687C0 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				641414A839DD8CC1355A3A2A /* DemoBackend.swift in Sources */,
+				81A6F72768719BAB13D61F83 /* DemoConfig.swift in Sources */,
+				138C884BD11396C1EF0BF590 /* LoginView.swift in Sources */,
+				19F99D4F487A05AE7DEAFA10 /* ShieldDemoApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		7FE2F4566E1F14BFE910A65F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				INFOPLIST_FILE = ShieldDemo/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = net.findip.shield.demo;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		A071D8FA89C945B3EDC94A7B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				INFOPLIST_FILE = ShieldDemo/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = net.findip.shield.demo;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		E400C1949A88D3ED3ECDF324 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		F798CA2E03933A12CD661F25 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		3143F90041616D21616E18EE /* Build configuration list for PBXNativeTarget "ShieldDemo" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7FE2F4566E1F14BFE910A65F /* Debug */,
+				A071D8FA89C945B3EDC94A7B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		4792687D42A1498CDFC292EB /* Build configuration list for PBXProject "ShieldDemo" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F798CA2E03933A12CD661F25 /* Debug */,
+				E400C1949A88D3ED3ECDF324 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		924C11BB69C0049B8C87E8BB /* XCLocalSwiftPackageReference "../.." */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../..;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		B8FC5ABF5AE3EC9B0B1E4879 /* FindIPShield */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = FindIPShield;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = C1F87D00F7BD0AF1952BA0F1 /* Project object */;
+}

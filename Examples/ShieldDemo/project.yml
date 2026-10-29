@@ -1,0 +1,54 @@
+# The demo app's Xcode project. ShieldDemo.xcodeproj is generated from this
+# file and committed; after changing it, run `xcodegen` in this folder.
+name: ShieldDemo
+options:
+  createIntermediateGroups: true
+  deploymentTarget:
+    iOS: "15.0"
+packages:
+  FindIPShield:
+    # This repository. In your app: https://github.com/findip-net/findip-shield-swift
+    path: ../..
+targets:
+  ShieldDemo:
+    type: application
+    platform: iOS
+    sources: [ShieldDemo]
+    dependencies:
+      - package: FindIPShield
+    info:
+      path: ShieldDemo/Info.plist
+      properties:
+        CFBundleDisplayName: Shield demo
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        UILaunchScreen: {}
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+        # Plain HTTP only to the demo backend on this computer. Shield itself is always HTTPS.
+        NSAppTransportSecurity:
+          NSAllowsLocalNetworking: true
+    settings:
+      base:
+        # Register this id on your Shield app site (Settings → Apps & keys).
+        PRODUCT_BUNDLE_IDENTIFIER: net.findip.shield.demo
+        MARKETING_VERSION: "1.0.0"
+        CURRENT_PROJECT_VERSION: "1"
+        SWIFT_VERSION: "5.0"
+        TARGETED_DEVICE_FAMILY: "1,2"
+        CODE_SIGN_STYLE: Automatic
+schemes:
+  ShieldDemo:
+    build:
+      targets:
+        ShieldDemo: all
+    run:
+      config: Debug
+      # Tick these in Edit Scheme → Run → Arguments, or paste the key into DemoConfig.swift.
+      environmentVariables:
+        - variable: SHIELD_SITE_KEY
+          value: pub_xxxxxxxxx
+          isEnabled: false
+        - variable: SHIELD_DEMO_BACKEND
+          value: http://localhost:8787
+          isEnabled: false

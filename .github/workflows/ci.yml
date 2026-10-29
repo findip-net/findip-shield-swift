@@ -24,3 +24,9 @@ jobs:
         run: xcodebuild build -scheme FindIPShield -destination 'generic/platform=iOS' -quiet
       - name: Build for the iOS Simulator
         run: xcodebuild build -scheme FindIPShield -destination 'generic/platform=iOS Simulator' -quiet
+      - name: Demo app builds for the iOS Simulator
+        run: xcodebuild build -project Examples/ShieldDemo/ShieldDemo.xcodeproj -scheme ShieldDemo -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO -quiet
+      - name: Demo backend starts and checks its key
+        run: |
+          node --check Examples/ShieldDemo/server/server.mjs
+          if SHIELD_SECRET_KEY= node Examples/ShieldDemo/server/server.mjs; then echo "should refuse to start without a key"; exit 1; fi

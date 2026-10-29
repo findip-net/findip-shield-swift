@@ -4,3 +4,7 @@
 xcuserdata/
 DerivedData/
 .DS_Store
+
+# The demo app project is generated from Examples/ShieldDemo/project.yml and committed,
+# so the demo opens without XcodeGen.
+!Examples/ShieldDemo/ShieldDemo.xcodeproj
