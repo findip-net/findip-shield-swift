@@ -16,7 +16,7 @@ the verdict before it acts.
 Swift Package Manager, iOS 15 or later:
 
 ```swift
-.package(url: "https://github.com/findip-net/findip-shield-swift", from: "1.0.0")
+.package(url: "https://github.com/findip-net/findip-shield-swift", from: "1.0.1")
 ```
 
 In Xcode: **File → Add Package Dependencies…** and paste the URL.
@@ -71,6 +71,7 @@ app and proves nothing; only your server's answer counts.
 `track` never throws for network or server problems. Without an answer from
 Shield it returns `risk.status == .unknown` with `monitor`, never `allow`, and
 `verdict.transport` says why (`.dropped(.unreachable)`, `.dropped(.configuration)`, …).
+It answers within `timeout` (5 seconds by default) whatever the network does.
 
 ## Identify the user
 
@@ -91,7 +92,8 @@ try FindIPShield.configure(siteKey: "pub_xxxxxxxxx", options: ShieldOptions(
     consentRequired: false,      // true: nothing is sent until FindIPShield.setConsent(true)
     sessionTimeout: 30 * 60,
     collectDeviceSignals: true,  // simulator / jailbreak / debugger heuristics
-    debug: false                 // logs to the unified log, subsystem net.findip.shield
+    debug: false,                // logs to the unified log, subsystem net.findip.shield
+    timeout: 5                   // the longest track waits; then unknown / monitor
 ))
 ```
 

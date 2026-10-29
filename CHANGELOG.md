@@ -2,6 +2,21 @@
 
 All notable changes to this package are documented here.
 
+## 1.0.1 - 2026-10-29
+
+### Fixed
+
+- The first event of a session no longer waits for its `session_start`: a
+  fresh login made two round trips in a row in 1.0.0.
+- That event and its `session_start` share one identity-key fetch.
+
+### Added
+
+- `ShieldOptions.timeout` (default 5 seconds): the longest `track` waits for
+  Shield. After it, `track` returns an `unknown` verdict with `monitor` and
+  `.dropped(.unreachable)`, and the request is cancelled; offline, 1.0.0
+  could wait about 20 seconds.
+
 ## 1.0.0 - 2026-10-29
 
 ### Added

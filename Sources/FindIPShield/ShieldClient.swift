@@ -1,7 +1,8 @@
 import Foundation
 
 /// One configured SDK instance: its state and the send logic of spec §3 and §6.
-/// State sits behind one lock; network work runs outside it.
+/// State sits behind one lock; network work runs outside it. Every `track`
+/// answers within `options.timeout`.
 final class ShieldClient: @unchecked Sendable {
     static let maxInFlight = 50
     static let maxPayloadBytes = 32_768
@@ -31,6 +32,8 @@ final class ShieldClient: @unchecked Sendable {
     private var inFlight = 0
     private var cachedKey: (key: IdentityKey?, fetchedAt: Date)?
     private var reportedConfigurationProblem = false
+    private var lastSessionStart: Task<Void, Never>?
+    private var keyFetch: Task<IdentityKey?, Never>?
 
     init(
         siteKey: String,
@@ -108,6 +111,37 @@ final class ShieldClient: @unchecked Sendable {
         let trimmed = rawName.trimmingCharacters(in: .whitespacesAndNewlines)
         if trimmed.isEmpty { throw ShieldError.emptyEventName }
         let name = EventName.normalize(trimmed)
+        return await Self.withDeadline(
+            options.timeout,
+            operation: { await self.trackNow(name, context: context, screen: screen) },
+            fallback: { .unknown(sessionId: self.currentSessionId, transport: .dropped(.unreachable), reason: "shield_unreachable") }
+        )
+    }
+
+    /// The operation's answer, or the fallback's once `seconds` pass; the operation is then cancelled.
+    static func withDeadline(
+        _ seconds: TimeInterval,
+        operation: @escaping @Sendable () async -> Verdict,
+        fallback: @escaping @Sendable () -> Verdict
+    ) async -> Verdict {
+        await withTaskGroup(of: Verdict?.self) { group in
+            group.addTask { await operation() }
+            group.addTask {
+                try? await Task.sleep(nanoseconds: UInt64(max(0, seconds) * 1_000_000_000))
+                return nil
+            }
+            let first = await group.next() ?? nil
+            group.cancelAll()
+            return first ?? fallback()
+        }
+    }
+
+    /// Waits for the last `session_start` sent in the background. For tests.
+    func settle() async {
+        await lock.sync { lastSessionStart }?.value
+    }
+
+    private func trackNow(_ name: String, context: [String: ContextValue]?, screen: String?) async -> Verdict {
 
         let (granted, session, visitor, identity) = lock.sync {
             (consentGranted, touchSession(at: now(), recordActivity: true), currentVisitorId(), self.identity)
@@ -118,7 +152,12 @@ final class ShieldClient: @unchecked Sendable {
         }
 
         if session.isNew && name != "session_start" {
-            _ = await send(name: "session_start", context: nil, screen: nil, sessionId: session.id, visitorId: visitor, identity: identity)
+            // Not awaited: the event does not wait for a second round trip, and
+            // ingest stores both in either order.
+            let start = Task {
+                _ = await self.send(name: "session_start", context: nil, screen: nil, sessionId: session.id, visitorId: visitor, identity: identity)
+            }
+            lock.sync { lastSessionStart = start }
         }
         return await send(name: name, context: context, screen: screen, sessionId: session.id, visitorId: visitor, identity: identity)
     }
@@ -270,10 +309,21 @@ final class ShieldClient: @unchecked Sendable {
     }
 
     /// The site's identity key, cached 5 minutes; nil (hash only) when the site has none.
+    /// A session's first event and its `session_start` share one fetch.
     private func identityKey() async -> IdentityKey? {
-        if let cached = lock.sync({ cachedKey }), now().timeIntervalSince(cached.fetchedAt) < Self.identityKeyTTL {
-            return cached.key
+        let fetch = lock.sync { () -> Task<IdentityKey?, Never>? in
+            if let cached = cachedKey, now().timeIntervalSince(cached.fetchedAt) < Self.identityKeyTTL { return nil }
+            if let keyFetch { return keyFetch }
+            let started = Task { await self.fetchIdentityKey() }
+            keyFetch = started
+            return started
         }
+        guard let fetch else { return lock.sync { cachedKey?.key } }
+        return await fetch.value
+    }
+
+    private func fetchIdentityKey() async -> IdentityKey? {
+        defer { lock.sync { keyFetch = nil } }
         guard let url = identityKeyURL else { return nil }
         var request = URLRequest(url: url, timeoutInterval: Self.identityKeyTimeout)
         request.httpMethod = "GET"

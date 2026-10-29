@@ -53,7 +53,7 @@ The demo builds against this repository's source (a local package at `../..`).
 Your app adds the published package:
 
 ```swift
-.package(url: "https://github.com/findip-net/findip-shield-swift", from: "1.0.0")
+.package(url: "https://github.com/findip-net/findip-shield-swift", from: "1.0.1")
 ```
 
 ## Changing the project

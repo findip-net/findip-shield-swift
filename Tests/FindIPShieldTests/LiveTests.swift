@@ -15,7 +15,7 @@ struct LiveTests {
         let endpoint = try #require(env["SHIELD_LIVE_ENDPOINT"].flatMap(URL.init(string:)))
         let client = ShieldClient(
             siteKey: try #require(env["SHIELD_LIVE_SITE_KEY"]),
-            options: ShieldOptions(endpoint: endpoint, debug: true),
+            options: ShieldOptions(endpoint: endpoint, debug: true, timeout: 20),
             store: MemoryStore(),
             appInfo: AppInfo(bundleId: try #require(env["SHIELD_LIVE_BUNDLE_ID"]), version: "1.0.0", build: "1")
         )
@@ -30,7 +30,7 @@ struct LiveTests {
         // An unregistered id is refused and named.
         let imposter = ShieldClient(
             siteKey: try #require(env["SHIELD_LIVE_SITE_KEY"]),
-            options: ShieldOptions(endpoint: endpoint), store: MemoryStore(),
+            options: ShieldOptions(endpoint: endpoint, timeout: 20), store: MemoryStore(),
             appInfo: AppInfo(bundleId: "com.imposter.app", version: nil, build: nil)
         )
         let refused = try await imposter.track(ShieldEvents.loginAttempt, context: nil, screen: nil)

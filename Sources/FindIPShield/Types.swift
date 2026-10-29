@@ -22,6 +22,8 @@ public struct ShieldOptions: Sendable {
     public var collectDeviceSignals: Bool
     /// Logs SDK activity to the unified log (subsystem `net.findip.shield`).
     public var debug: Bool
+    /// The longest `track` waits for Shield; after it, an `unknown` verdict (`monitor`).
+    public var timeout: TimeInterval
 
     public static let defaultEndpoint = URL(string: "https://shield.findip.net/v1/shield/track")!
 
@@ -31,7 +33,8 @@ public struct ShieldOptions: Sendable {
         endpoint: URL = ShieldOptions.defaultEndpoint,
         sessionTimeout: TimeInterval = 30 * 60,
         collectDeviceSignals: Bool = true,
-        debug: Bool = false
+        debug: Bool = false,
+        timeout: TimeInterval = 5
     ) {
         self.privacyMode = privacyMode
         self.consentRequired = consentRequired
@@ -39,6 +42,7 @@ public struct ShieldOptions: Sendable {
         self.sessionTimeout = sessionTimeout
         self.collectDeviceSignals = collectDeviceSignals
         self.debug = debug
+        self.timeout = timeout
     }
 }
 
