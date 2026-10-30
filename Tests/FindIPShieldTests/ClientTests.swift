@@ -143,6 +143,42 @@ final class TestClock: @unchecked Sendable {
         #expect(client.currentSessionId == client.currentSessionId)
     }
 
+    @Test func testReadingTheSessionIdFirstStillSendsSessionStart() async throws {
+        let transport = StubTransport { _ in (200, Self.allow) }
+        let client = makeClient(transport)
+
+        let read = client.currentSessionId
+        _ = try await client.trackSettled("login_attempt", context: nil, screen: nil)
+        _ = try await client.trackSettled("login_success", context: nil, screen: nil)
+
+        #expect(Set(sessions(transport)) == [read])
+        #expect(transport.trackedNames.filter { $0 == "session_start" }.count == 1)
+    }
+
+    @Test func testReadingTheSessionIdAfterTheTimeoutStillSendsSessionStart() async throws {
+        let transport = StubTransport { _ in (200, Self.allow) }
+        let clock = TestClock()
+        let client = makeClient(transport, clock: clock)
+
+        _ = try await client.trackSettled("login_attempt", context: nil, screen: nil)
+        clock.advance(31 * 60)
+        let read = client.currentSessionId
+        _ = try await client.trackSettled("login_success", context: nil, screen: nil)
+
+        #expect(sessions(transport).last == read)
+        #expect(transport.trackedNames.filter { $0 == "session_start" }.count == 2)
+    }
+
+    @Test func testAnExplicitSessionStartIsNotSentTwice() async throws {
+        let transport = StubTransport { _ in (200, Self.allow) }
+        let client = makeClient(transport)
+
+        _ = try await client.trackSettled("session_start", context: nil, screen: nil)
+        _ = try await client.trackSettled("login_attempt", context: nil, screen: nil)
+
+        #expect(transport.trackedNames == ["session_start", "login_attempt"])
+    }
+
     @Test func testDeliveredVerdictAndSessionStartOncePerSession() async throws {
         let transport = StubTransport { _ in (200, Self.allow) }
         let clock = TestClock()
@@ -201,6 +237,7 @@ final class TestClock: @unchecked Sendable {
         client.setConsent(true)
         let sent = try await client.trackSettled("login_attempt", context: nil, screen: nil)
         #expect(sent.transport == .delivered)
+        #expect(transport.trackedNames.filter { $0 == "session_start" }.count == 1)
     }
 
     @Test func testRefusalsNeverReadAsAllow() async throws {

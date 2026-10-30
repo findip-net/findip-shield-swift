@@ -26,6 +26,7 @@ final class ShieldClient: @unchecked Sendable {
     private var identity: IdentityInput?
     private var sessionId: String?
     private var lastEventAt: Date?
+    private var sessionStartPending = false
     private var backgroundedAt: Date?
     private var visitorId: String?
     private var device: DeviceInfo?
@@ -102,21 +103,21 @@ final class ShieldClient: @unchecked Sendable {
     }
 
     /// The current session ID, starting a session when none is open.
-    var currentSessionId: String { lock.sync { touchSession(at: now(), recordActivity: false).id } }
+    var currentSessionId: String { lock.sync { touchSession(at: now(), recordActivity: false) } }
 
     /// Starts a new session when none is open, the last event is older than the
     /// timeout, or the app has been in the background longer than the timeout.
-    private func touchSession(at date: Date, recordActivity: Bool) -> (id: String, isNew: Bool) {
-        var isNew = false
+    private func touchSession(at date: Date, recordActivity: Bool) -> String {
         if sessionId == nil || expiredInBackground(at: date) || lastEventAt.map({ date.timeIntervalSince($0) > options.sessionTimeout }) ?? false {
             sessionId = Identifiers.make(prefix: "sess_")
-            isNew = true
+            // Only an event sent in this session can carry its session_start.
+            sessionStartPending = true
             lastEventAt = date
             // A background event opened this session: its timeout starts now.
             if backgroundedAt != nil { backgroundedAt = date }
         }
         if recordActivity || lastEventAt == nil { lastEventAt = date }
-        return (sessionId!, isNew)
+        return sessionId!
     }
 
     private func currentVisitorId() -> String? {
@@ -170,23 +171,26 @@ final class ShieldClient: @unchecked Sendable {
 
     private func trackNow(_ name: String, context: [String: ContextValue]?, screen: String?) async -> Verdict {
 
-        let (granted, session, visitor, identity) = lock.sync {
-            (consentGranted, touchSession(at: now(), recordActivity: true), currentVisitorId(), self.identity)
+        let (granted, session, needsStart, visitor, identity) = lock.sync {
+            let session = touchSession(at: now(), recordActivity: true)
+            let needsStart = consentGranted && sessionStartPending
+            if needsStart { sessionStartPending = false }
+            return (consentGranted, session, needsStart, currentVisitorId(), self.identity)
         }
         guard granted else {
             log.debug("consent not given: \(name) not sent")
-            return .unknown(sessionId: session.id, transport: .dropped(.consent), reason: "consent_required")
+            return .unknown(sessionId: session, transport: .dropped(.consent), reason: "consent_required")
         }
 
-        if session.isNew && name != "session_start" {
+        if needsStart && name != "session_start" {
             // Not awaited: the event does not wait for a second round trip, and
             // ingest stores both in either order.
             let start = Task {
-                _ = await self.send(name: "session_start", context: nil, screen: nil, sessionId: session.id, visitorId: visitor, identity: identity)
+                _ = await self.send(name: "session_start", context: nil, screen: nil, sessionId: session, visitorId: visitor, identity: identity)
             }
             lock.sync { lastSessionStart = start }
         }
-        return await send(name: name, context: context, screen: screen, sessionId: session.id, visitorId: visitor, identity: identity)
+        return await send(name: name, context: context, screen: screen, sessionId: session, visitorId: visitor, identity: identity)
     }
 
     private func send(
