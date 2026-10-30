@@ -26,6 +26,7 @@ final class ShieldClient: @unchecked Sendable {
     private var identity: IdentityInput?
     private var sessionId: String?
     private var lastEventAt: Date?
+    private var backgroundedAt: Date?
     private var visitorId: String?
     private var device: DeviceInfo?
     private var cooldownUntil: Date?
@@ -77,16 +78,42 @@ final class ShieldClient: @unchecked Sendable {
         }
     }
 
+    /// The app went to the background. The session stays open: a user who leaves
+    /// to read a code from their mail is still in the same login.
+    func didEnterBackground() {
+        lock.sync { backgroundedAt = now() }
+        log.debug("app in the background")
+    }
+
+    /// The app is back. The session ends if it was away longer than the timeout.
+    func willEnterForeground() {
+        let ended = lock.sync { () -> Bool in
+            defer { backgroundedAt = nil }
+            guard expiredInBackground(at: now()) else { return false }
+            sessionId = nil
+            lastEventAt = nil
+            return true
+        }
+        log.debug(ended ? "app in the foreground: session ended" : "app in the foreground: session kept")
+    }
+
+    private func expiredInBackground(at date: Date) -> Bool {
+        backgroundedAt.map { date.timeIntervalSince($0) > options.sessionTimeout } ?? false
+    }
+
     /// The current session ID, starting a session when none is open.
     var currentSessionId: String { lock.sync { touchSession(at: now(), recordActivity: false).id } }
 
-    /// Starts a new session when none is open or the last event is older than the timeout.
+    /// Starts a new session when none is open, the last event is older than the
+    /// timeout, or the app has been in the background longer than the timeout.
     private func touchSession(at date: Date, recordActivity: Bool) -> (id: String, isNew: Bool) {
         var isNew = false
-        if sessionId == nil || lastEventAt.map({ date.timeIntervalSince($0) > options.sessionTimeout }) ?? false {
+        if sessionId == nil || expiredInBackground(at: date) || lastEventAt.map({ date.timeIntervalSince($0) > options.sessionTimeout }) ?? false {
             sessionId = Identifiers.make(prefix: "sess_")
             isNew = true
-            lastEventAt = recordActivity ? date : (lastEventAt == nil ? date : lastEventAt)
+            lastEventAt = date
+            // A background event opened this session: its timeout starts now.
+            if backgroundedAt != nil { backgroundedAt = date }
         }
         if recordActivity || lastEventAt == nil { lastEventAt = date }
         return (sessionId!, isNew)

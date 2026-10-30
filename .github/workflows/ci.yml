@@ -26,6 +26,32 @@ jobs:
         run: xcodebuild build -scheme FindIPShield -destination 'generic/platform=iOS Simulator' -quiet
       - name: Demo app builds for the iOS Simulator
         run: xcodebuild build -project Examples/ShieldDemo/ShieldDemo.xcodeproj -scheme ShieldDemo -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO -quiet
+      - name: Demo app runs on the iOS Simulator
+        working-directory: Examples/ShieldDemo
+        run: |
+          UDID=$(xcrun simctl list devices available -j | node -e 'let b="";process.stdin.on("data",c=>b+=c).on("end",()=>{const d=Object.entries(JSON.parse(b).devices).filter(([k])=>k.includes("iOS")).flatMap(([,v])=>v).find(x=>x.name.startsWith("iPhone"));process.stdout.write(d.udid)})')
+          xcrun simctl boot "$UDID"
+          xcrun simctl bootstatus "$UDID"
+          xcrun simctl spawn "$UDID" log stream --level debug --predicate 'subsystem == "net.findip.shield"' > sdk.log &
+          EVENTS_FILE=events.jsonl node ci/fake-shield.mjs &
+          SHIELD_SECRET_KEY=sec_citest SHIELD_VERIFY_URL=http://localhost:8788/v1/shield/sessions/verify node server/server.mjs &
+          for port in 8787 8788; do
+            for i in $(seq 1 30); do curl -sf localhost:$port/health >/dev/null && break; sleep 1; done
+          done
+          xcodebuild test -project ShieldDemo.xcodeproj -scheme ShieldDemo -destination "id=$UDID" -resultBundlePath ui-tests.xcresult CODE_SIGN_IDENTITY=- CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM= -quiet
+          node ci/check-events.mjs events.jsonl ios
+          sleep 2
+          # The notifications really reached the SDK.
+          grep -q 'app in the background' sdk.log
+          grep -q 'app in the foreground: session kept' sdk.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: demo-run
+          path: |
+            Examples/ShieldDemo/ui-tests.xcresult
+            Examples/ShieldDemo/events.jsonl
+            Examples/ShieldDemo/sdk.log
       - name: Demo backend starts and checks its key
         run: |
           node --check Examples/ShieldDemo/server/server.mjs

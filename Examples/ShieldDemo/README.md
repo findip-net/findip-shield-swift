@@ -53,8 +53,13 @@ The demo builds against this repository's source (a local package at `../..`).
 Your app adds the published package:
 
 ```swift
-.package(url: "https://github.com/findip-net/findip-shield-swift", from: "1.0.1")
+.package(url: "https://github.com/findip-net/findip-shield-swift", from: "1.0.2")
 ```
+
+## Tests
+
+`ShieldDemoUITests` runs the whole flow on a Simulator against a stand-in for
+Shield (`ci/fake-shield.mjs`). CI runs it on every pull request.
 
 ## Changing the project
 

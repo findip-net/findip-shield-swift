@@ -16,7 +16,7 @@ the verdict before it acts.
 Swift Package Manager, iOS 15 or later:
 
 ```swift
-.package(url: "https://github.com/findip-net/findip-shield-swift", from: "1.0.1")
+.package(url: "https://github.com/findip-net/findip-shield-swift", from: "1.0.2")
 ```
 
 In Xcode: **File → Add Package Dependencies…** and paste the URL.

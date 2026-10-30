@@ -37,11 +37,27 @@ targets:
         SWIFT_VERSION: "5.0"
         TARGETED_DEVICE_FAMILY: "1,2"
         CODE_SIGN_STYLE: Automatic
+  # The whole flow on a Simulator, against ci/fake-shield.mjs. See .github/workflows/ci.yml.
+  ShieldDemoUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources: [ShieldDemoUITests]
+    dependencies:
+      - target: ShieldDemo
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: net.findip.shield.demo.uitests
+        GENERATE_INFOPLIST_FILE: "YES"
+        SWIFT_VERSION: "5.0"
+        CODE_SIGN_STYLE: Automatic
 schemes:
   ShieldDemo:
     build:
       targets:
         ShieldDemo: all
+    test:
+      targets:
+        - ShieldDemoUITests
     run:
       config: Debug
       # Tick these in Edit Scheme → Run → Arguments, or paste the key into DemoConfig.swift.

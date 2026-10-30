@@ -77,6 +77,72 @@ final class TestClock: @unchecked Sendable {
         )
     }
 
+    private func sessions(_ transport: StubTransport) -> [String] {
+        transport.events.compactMap { ($0["session"] as? [String: Any])?["session_id"] as? String }
+    }
+
+    @Test func testAShortTripToTheBackgroundKeepsTheSession() async throws {
+        let transport = StubTransport { _ in (200, Self.allow) }
+        let clock = TestClock()
+        let client = makeClient(transport, clock: clock)
+
+        _ = try await client.trackSettled("login_attempt", context: nil, screen: nil)
+        client.didEnterBackground()
+        clock.advance(60)
+        client.willEnterForeground()
+        _ = try await client.trackSettled("login_success", context: nil, screen: nil)
+
+        #expect(Set(sessions(transport)).count == 1)
+        #expect(transport.trackedNames.filter { $0 == "session_start" }.count == 1)
+    }
+
+    @Test func testALongTripToTheBackgroundEndsTheSession() async throws {
+        let transport = StubTransport { _ in (200, Self.allow) }
+        let clock = TestClock()
+        let client = makeClient(transport, clock: clock)
+
+        _ = try await client.trackSettled("login_attempt", context: nil, screen: nil)
+        client.didEnterBackground()
+        clock.advance(31 * 60)
+        client.willEnterForeground()
+        _ = try await client.trackSettled("login_attempt", context: nil, screen: nil)
+
+        #expect(Set(sessions(transport)).count == 2)
+        #expect(transport.trackedNames.filter { $0 == "session_start" }.count == 2)
+    }
+
+    @Test func testEventsSentInTheBackgroundDoNotKeepTheSessionOpen() async throws {
+        let transport = StubTransport { _ in (200, Self.allow) }
+        let clock = TestClock()
+        let client = makeClient(transport, clock: clock)
+
+        _ = try await client.trackSettled("login_attempt", context: nil, screen: nil)
+        client.didEnterBackground()
+        clock.advance(20 * 60)
+        _ = try await client.trackSettled("custom", context: nil, screen: nil)
+        clock.advance(20 * 60)
+        _ = try await client.trackSettled("custom", context: nil, screen: nil)
+        clock.advance(60)
+        _ = try await client.trackSettled("custom", context: nil, screen: nil)
+
+        // 40 minutes in the background ends the first session; the second stays
+        // open, its own background time having restarted when it opened.
+        let seen = sessions(transport)
+        #expect(seen[0] == seen[1])
+        #expect(seen[1] != seen[2])
+        #expect(seen[2] == seen[3])
+    }
+
+    @Test func testReadingTheSessionIdAfterTheTimeoutGivesOneNewSession() async throws {
+        let transport = StubTransport { _ in (200, Self.allow) }
+        let clock = TestClock()
+        let client = makeClient(transport, clock: clock)
+
+        _ = try await client.trackSettled("login_attempt", context: nil, screen: nil)
+        clock.advance(31 * 60)
+        #expect(client.currentSessionId == client.currentSessionId)
+    }
+
     @Test func testDeliveredVerdictAndSessionStartOncePerSession() async throws {
         let transport = StubTransport { _ in (200, Self.allow) }
         let clock = TestClock()
