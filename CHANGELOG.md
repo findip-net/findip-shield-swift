@@ -2,6 +2,15 @@
 
 All notable changes to this package are documented here.
 
+## 1.0.3 - 2026-10-30
+
+### Fixed
+
+- A session opened by reading `FindIPShield.sessionId` before its first event never sent
+  `session_start`. The next event now sends it. The same applies to a session
+  opened by an event refused for lack of consent: the first event after consent
+  sends it.
+
 ## 1.0.2 - 2026-10-30
 
 ### Fixed
