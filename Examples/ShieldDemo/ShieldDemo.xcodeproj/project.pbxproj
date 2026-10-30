@@ -9,12 +9,25 @@
 /* Begin PBXBuildFile section */
 		138C884BD11396C1EF0BF590 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE235AF0E4BEBB326C98B46B /* LoginView.swift */; };
 		19F99D4F487A05AE7DEAFA10 /* ShieldDemoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C8C2F27F995C9AD4DD4BB18 /* ShieldDemoApp.swift */; };
+		498315F3A8F5994ABF46C883 /* LoginFlowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14893C9D53AAE5463B8DC599 /* LoginFlowTests.swift */; };
 		641414A839DD8CC1355A3A2A /* DemoBackend.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5D473FB0AAC686C82513945 /* DemoBackend.swift */; };
 		81A6F72768719BAB13D61F83 /* DemoConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBC83CC09492612FD44EAAA8 /* DemoConfig.swift */; };
 		B5B42121EFE5CEB7C4EEF20B /* FindIPShield in Frameworks */ = {isa = PBXBuildFile; productRef = B8FC5ABF5AE3EC9B0B1E4879 /* FindIPShield */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		EBF8DC6FB37EC74A5D14EB4E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C1F87D00F7BD0AF1952BA0F1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 228B73E657427E2304A32C28;
+			remoteInfo = ShieldDemo;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
+		14893C9D53AAE5463B8DC599 /* LoginFlowTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginFlowTests.swift; sourceTree = "<group>"; };
+		508F44133A896ED9008B19F7 /* ShieldDemoUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = ShieldDemoUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		7C8C2F27F995C9AD4DD4BB18 /* ShieldDemoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShieldDemoApp.swift; sourceTree = "<group>"; };
 		9BA980C1B176C1FED649AA65 /* findip-shield-swift */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "findip-shield-swift"; path = ../..; sourceTree = SOURCE_ROOT; };
 		CBC83CC09492612FD44EAAA8 /* DemoConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoConfig.swift; sourceTree = "<group>"; };
@@ -40,8 +53,17 @@
 			isa = PBXGroup;
 			children = (
 				E49AACF03652CAD6579FAB51 /* ShieldDemo.app */,
+				508F44133A896ED9008B19F7 /* ShieldDemoUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		24E433E98620B5088155EDC2 /* ShieldDemoUITests */ = {
+			isa = PBXGroup;
+			children = (
+				14893C9D53AAE5463B8DC599 /* LoginFlowTests.swift */,
+			);
+			path = ShieldDemoUITests;
 			sourceTree = "<group>";
 		};
 		36C55C2D3F902635C87E4074 = {
@@ -49,6 +71,7 @@
 			children = (
 				4622B13DF5B12F7DE00AD9B2 /* Packages */,
 				B4186F442C19231C101AF279 /* ShieldDemo */,
+				24E433E98620B5088155EDC2 /* ShieldDemoUITests */,
 				12CD9779DABB88DAC05140D3 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -76,6 +99,24 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		1E8B9C3302A05BCA2C2EA9F7 /* ShieldDemoUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 8AF78BAA5C9FA8B0A3D75DC6 /* Build configuration list for PBXNativeTarget "ShieldDemoUITests" */;
+			buildPhases = (
+				8F74B1D51CFCF181369945B1 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				1A4C647F17762320F62BEA67 /* PBXTargetDependency */,
+			);
+			name = ShieldDemoUITests;
+			packageProductDependencies = (
+			);
+			productName = ShieldDemoUITests;
+			productReference = 508F44133A896ED9008B19F7 /* ShieldDemoUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 		228B73E657427E2304A32C28 /* ShieldDemo */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 3143F90041616D21616E18EE /* Build configuration list for PBXNativeTarget "ShieldDemo" */;
@@ -104,6 +145,10 @@
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1430;
 				TargetAttributes = {
+					1E8B9C3302A05BCA2C2EA9F7 = {
+						ProvisioningStyle = Automatic;
+						TestTargetID = 228B73E657427E2304A32C28;
+					};
 					228B73E657427E2304A32C28 = {
 						ProvisioningStyle = Automatic;
 					};
@@ -127,6 +172,7 @@
 			projectRoot = "";
 			targets = (
 				228B73E657427E2304A32C28 /* ShieldDemo */,
+				1E8B9C3302A05BCA2C2EA9F7 /* ShieldDemoUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -143,7 +189,23 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		8F74B1D51CFCF181369945B1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				498315F3A8F5994ABF46C883 /* LoginFlowTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		1A4C647F17762320F62BEA67 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 228B73E657427E2304A32C28 /* ShieldDemo */;
+			targetProxy = EBF8DC6FB37EC74A5D14EB4E /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		7FE2F4566E1F14BFE910A65F /* Debug */ = {
@@ -183,6 +245,44 @@
 				SDKROOT = iphoneos;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		A36F964FDEEB6CE0353957DA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = net.findip.shield.demo.uitests;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = ShieldDemo;
+			};
+			name = Debug;
+		};
+		C5878FBC3A9295E2527F80EB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = net.findip.shield.demo.uitests;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = ShieldDemo;
 			};
 			name = Release;
 		};
@@ -322,6 +422,15 @@
 			buildConfigurations = (
 				F798CA2E03933A12CD661F25 /* Debug */,
 				E400C1949A88D3ED3ECDF324 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		8AF78BAA5C9FA8B0A3D75DC6 /* Build configuration list for PBXNativeTarget "ShieldDemoUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A36F964FDEEB6CE0353957DA /* Debug */,
+				C5878FBC3A9295E2527F80EB /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;

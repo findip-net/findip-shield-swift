@@ -16,7 +16,8 @@ public struct ShieldOptions: Sendable {
     public var consentRequired: Bool
     /// The track endpoint. The identity-key endpoint is derived from it.
     public var endpoint: URL
-    /// A session ends after this long without an event (or in the background).
+    /// A session ends after this long without an event, or after this long in the
+    /// background. A shorter trip to the background keeps the session.
     public var sessionTimeout: TimeInterval
     /// Sends the emulator / jailbreak / debugger heuristics. Always off in `strict`.
     public var collectDeviceSignals: Bool

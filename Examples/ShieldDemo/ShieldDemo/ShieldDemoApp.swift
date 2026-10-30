@@ -20,7 +20,7 @@ enum Shield {
     static func configure() {
         guard !DemoConfig.siteKey.isEmpty else { return }
         do {
-            try FindIPShield.configure(siteKey: DemoConfig.siteKey, options: ShieldOptions(debug: true))
+            try FindIPShield.configure(siteKey: DemoConfig.siteKey, options: ShieldOptions(endpoint: DemoConfig.endpoint, debug: true))
             configured = true
         } catch {
             print("Shield is off: \(error)")

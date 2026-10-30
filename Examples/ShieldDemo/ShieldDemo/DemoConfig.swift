@@ -1,3 +1,4 @@
+import FindIPShield
 import Foundation
 
 /// The demo's two settings. Paste them here, or set them as environment
@@ -10,6 +11,11 @@ enum DemoConfig {
 
     static var siteKey: String {
         ProcessInfo.processInfo.environment["SHIELD_SITE_KEY"] ?? siteKeyHere
+    }
+
+    /// Shield's track endpoint. Only the CI run changes it.
+    static var endpoint: URL {
+        ProcessInfo.processInfo.environment["SHIELD_ENDPOINT"].flatMap(URL.init(string:)) ?? ShieldOptions.defaultEndpoint
     }
 
     static var backendURL: URL {

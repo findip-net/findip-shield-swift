@@ -1,4 +1,7 @@
 import Foundation
+#if canImport(UIKit)
+import UIKit
+#endif
 
 /// FindIP Shield for iOS: a verdict on each sensitive action in your app.
 ///
@@ -12,11 +15,12 @@ import Foundation
 /// `POST https://shield.findip.net/v1/shield/sessions/verify` and the site's
 /// secret key before it allows, challenges or blocks.
 public enum FindIPShield {
-    public static let version = "1.0.1"
+    public static let version = "1.0.2"
     static let sdkName = "findip-shield-ios"
 
     private static let lock = NSLock()
     nonisolated(unsafe) private static var client: ShieldClient?
+    nonisolated(unsafe) private static var observingLifecycle = false
 
     static var current: ShieldClient? { lock.sync { client } }
 
@@ -27,10 +31,29 @@ public enum FindIPShield {
         let key = siteKey.trimmingCharacters(in: .whitespacesAndNewlines)
         guard key.hasPrefix("pub_") else { throw ShieldError.invalidSiteKey }
         install(ShieldClient(siteKey: key, options: options))
+        observeLifecycle()
     }
 
     static func install(_ newClient: ShieldClient) {
         lock.sync { client = newClient }
+    }
+
+    /// Follows the app to the background and back, for the session timeout (spec §3).
+    private static func observeLifecycle() {
+        #if canImport(UIKit) && !os(watchOS)
+        let first = lock.sync { () -> Bool in
+            defer { observingLifecycle = true }
+            return !observingLifecycle
+        }
+        guard first else { return }
+        let center = NotificationCenter.default
+        _ = center.addObserver(forName: UIApplication.didEnterBackgroundNotification, object: nil, queue: nil) { _ in
+            current?.didEnterBackground()
+        }
+        _ = center.addObserver(forName: UIApplication.willEnterForegroundNotification, object: nil, queue: nil) { _ in
+            current?.willEnterForeground()
+        }
+        #endif
     }
 
     /// Reports one event and returns Shield's verdict. Never throws for network
