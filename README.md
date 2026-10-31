@@ -1,5 +1,8 @@
 # FindIP Shield for iOS
 
+[![Swift versions](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Ffindip-net%2Ffindip-shield-swift%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/findip-net/findip-shield-swift)
+[![Platforms](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Ffindip-net%2Ffindip-shield-swift%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/findip-net/findip-shield-swift)
+
 A verdict on each sensitive action in your app: signups, logins, password
 resets, checkouts. [FindIP Shield](https://www.findip.net/shield) scores the
 network behind the request (VPN, proxy, Tor, hosting, known-malicious) and
